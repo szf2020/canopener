@@ -15,27 +15,13 @@ describe("RemoteDevice",()=>{
 	it("expedited read",async ()=>{
 		let bus=await openSlcanBus({spawn: "bin/mockdevice"});
 		let device=new RemoteDevice({bus: bus, nodeId: 5});
-		/*let e1=device.entry(0x4001,0x34);
-		await expectAsync(e1.refresh()).toBeRejectedWith(new Error("Object does not exist in OD"));*/
-
-		let e2=device.entry(0x4001,0x33);
-		await e2.set(0x11223344);
-
 
 		let e1=device.entry(0x4001,0x33);
-		await e1.refresh();
+		await e1.set(11223344);
 
-		/*await e.set(0x12345678);
-		await e.refresh();
+		let e2=device.entry(0x4001,0x33);
+		await e2.refresh();
 
-
-		let e=device.entry(0x4001,0x33);
-		await e.set(0x12345678);
-
-		await e.refresh();
-
-		await new Promise(r=>setTimeout(r,1000));*/
-
-		//console.log(e.get());
+		expect(e2.get()).toEqual(11223344);
 	});
 });
