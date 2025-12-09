@@ -1,4 +1,4 @@
-WATCHSOURCES=test/mockdevice.cpp src/*.c* include/*.h include/canopener/*.h emcc_flags.rsp
+WATCHSOURCES=test/*.cpp src/*.c* include/*.h include/canopener/*.h emcc_flags.rsp
 
 all: bin/mockdevice bin/test dist/cof-defines.js dist/cof-wasm.wasm dist/cof-wasm.js
 

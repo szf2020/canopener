@@ -27,6 +27,8 @@ void canopener::handleSdoExpeditedRead(Device &dev, cof_t *frame) {
 
     const auto &bytes = e->raw();
     size_t size = bytes.size();
+    if (size>4)
+        size=4;
 
     cof_t reply;
     cof_set(&reply,COF_TYPE,COF_TYPE_SDO_UPLOAD_REPLY); 
@@ -35,8 +37,8 @@ void canopener::handleSdoExpeditedRead(Device &dev, cof_t *frame) {
     cof_set(&reply,COF_SDO_SUB,sub);
     cof_set(&reply,COF_SDO_EXPEDITED,1);
     cof_set(&reply,COF_SDO_SIZE_IND,1);
-    cof_set(&reply,COF_SDO_EXP_SIZE,4);
-    memcpy(cof_getp(&reply,COF_SDO_EXP_DATA),bytes.data(),4);
+    cof_set(&reply,COF_SDO_EXP_SIZE,size);
+    memcpy(cof_getp(&reply,COF_SDO_EXP_DATA),bytes.data(),size);
     dev.getBus().write(&reply);
 
     //printf("it is an upload request!!!\n"); fflush(stdout);
@@ -69,6 +71,9 @@ void canopener::handleSdoExpeditedWrite(Device &dev, cof_t *frame) {
     //printf("setting, expedited size: %d\n",cof_get(frame,COF_SDO_EXP_SIZE));
 
     size_t size=cof_get(frame,COF_SDO_EXP_SIZE);
+    if (size>e->raw().size())
+        size=e->raw().size();
+
     e->setRaw(cof_getp(frame,COF_SDO_EXP_DATA),size);
 
     cof_t reply;

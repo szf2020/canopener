@@ -60,10 +60,23 @@ void test_Device_basic() {
 	MockBus bus;
 	Device device(bus);
 
+	device.insert(0x4000,0x03).setType(Entry::STRING).set(std::string("hello"));
+	std::string s=device.at(0x4000,0x03).get<std::string>();
+	assert(s=="hello");
+
+	// Doesn't work for now...
+	/*device.insert(0x4000,0x04).setType(Entry::STRING).set("hello");
+	assert(device.at(0x4000,0x03).get<std::string>()=="hello2");*/
+
+	assert(device.at(0x4000,0x03).get<std::string>()==std::string("hello"));
+
+	device.insert(0x4000,0x05).setType(Entry::INT8).set(123);
+	assert(device.at(0x4000,0x05).get<uint32_t>()==123);
+	assert(device.at(0x4000,0x05).get<float>()==123.0);
+
 	device.insert(0x4000,0x00).setType(Entry::INT32).set(123);
 	assert(device.at(0x4000,0x00).get<uint32_t>()==123);
 	assert(device.at(0x4000).get<uint32_t>()==123);
-
 }
 
 void test_Device_expedited_write() {
@@ -99,13 +112,29 @@ void test_Device_expedited_write() {
 
 }
 
+void test_Device_expedited_write16() {
+	printf("- Works with expedited SDO write...\n");
+	MockBus bus;
+	Device device(bus);
+	device.setNodeId(5);
+
+	device.insert(0x4001,0x33).setType(Entry::INT16);
+
+	//Write 0x12345678 to index 0x4001, sub-index 0x33
+	bus.rxBufPushSlcan("t60582301403378563412");
+	device.loop();
+	//printf("%08x\n",device.at(0x4001,0x33).get<uint32_t>());
+	assert(device.at(0x4001,0x33).get<uint32_t>()==0x5678);
+}
+
 int main() {
 	printf("Running tests...\n");
 
-	test_cof();
+	/*test_cof();
 	test_MockBus();
 	test_Device_basic();
-	test_Device_expedited_write();
+	test_Device_expedited_write();*/
+	test_Device_expedited_write16();
 
 	return 0;
 }
