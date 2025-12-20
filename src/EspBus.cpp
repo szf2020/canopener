@@ -18,7 +18,7 @@ void EspBus::populatePeeked() {
 
     esp_err_t result;
     twai_message_t message;
-    result=twai_receive(&message,pdMS_TO_TICKS(0));
+    result=twai_receive(&message,0); //pdMS_TO_TICKS(0));
     if (result==ESP_ERR_TIMEOUT)
     	return;
 
@@ -59,13 +59,11 @@ void EspBus::write(cof_t *frame) {
     message.extd = 0;            // Standard frame (11-bit ID)
     message.rtr = 0;             // Data frame (not remote)
     message.data_length_code=frame->len;
-    //message.data_length_code = 8; // Data length (0-8 bytes)
-
     for (int i=0; i<8; i++)
         message.data[i]=frame->data[i];
 
     esp_err_t result;
-    result=twai_transmit(&message, pdMS_TO_TICKS(1000));
+    result=twai_transmit(&message,0); // nonblocking, else: pdMS_TO_TICKS(1000));
     if (result==ESP_OK) {
         lastBusTime=millis();
         Serial.printf("message sent...\n");
@@ -78,7 +76,6 @@ void EspBus::write(cof_t *frame) {
     }
 }
 
-// Implement!!!
 void EspBus::loop() {
 	if (!initialized) {
 		resetBus();
@@ -87,16 +84,16 @@ void EspBus::loop() {
 
     twai_status_info_t status;
     twai_get_status_info(&status);
-    Serial.printf("state=%d txerr=%d rxerr=%d buserr=%d\n",
+    /*Serial.printf("state=%d txerr=%d rxerr=%d buserr=%d\n",
         status.state,
         status.tx_error_counter,
         status.rx_error_counter,
         status.bus_error_count
-    );
+    );*/
 
     //bool errorPressure = status.tx_error_counter > 5;
     bool stalled = millis() - lastBusTime > 500;
-    if (sendErrorCount>0 && stalled) // WHAAAT??? THIS SHOuLD NOT BE 0, it should be 5 or so... test and fix...
+    if (sendErrorCount>1 && stalled) // WHAAAT??? THIS SHOuLD NOT BE 0, it should be 5 or so... test and fix...
         resetBus();
 }
 
