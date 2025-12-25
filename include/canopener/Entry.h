@@ -3,6 +3,9 @@
 #include <cstring>
 #include <cmath>
 #include <algorithm>
+#include <string>
+#include "canopener/DataView.h"
+#include "castx.h"
 
 namespace canopener {
 	class Entry {
@@ -19,85 +22,41 @@ namespace canopener {
 		Entry& setType(Type type);
 
 		template<typename T>
-		void set(T val) {
-		    if constexpr (std::is_same<T, std::string>::value) {
-		        if (type != Type::STRING) return;
-		        data.resize(val.size() + 1);       // +1 for null terminator
-		        std::copy(val.begin(), val.end(), data.begin());
-		        data.back() = 0;                   // null terminator
-		    }
+		void set (T v) {
+            switch (type) {
+                case Type::INT8:    view.setInt8(0,castx<int8_t,T>(v)); return;
+                case Type::INT16:   view.setInt16(0,castx<int16_t,T>(v),true); return;
+                case Type::INT32:   view.setInt32(0,castx<int32_t,T>(v),true); return;
+                case Type::UINT8:   view.setUint8(0,castx<uint8_t,T>(v)); return;
+                case Type::UINT16:  view.setUint16(0,castx<uint16_t,T>(v),true); return;
+                case Type::UINT32:  view.setUint32(0,castx<uint32_t,T>(v),true); return;
+                case Type::FLOAT32: view.setFloat32(0,castx<float,T>(v),true); return;
+                case Type::BOOL:    view.setUint8(0,castx<uint8_t,T>(v)); return;
+                case Type::STRING:  view.setString(castx<std::string,T>(v)); return;
+                default: 
+ 					throw std::logic_error("Type missing on set...");
 
-		    else if constexpr (std::is_arithmetic<T>::value) {
-			    switch (type) {
-			        case Type::FLOAT32: {
-			            float fval = static_cast<float>(val);
-			            uint32_t raw;
-			            memcpy(&raw, &fval, 4);
-			            setRawNum(raw);
-			            break;
-			        }
-
-			        case Type::INT8:
-			        case Type::INT16:
-			        case Type::INT32:
-			        case Type::UINT8:
-			        case Type::UINT16:
-			        case Type::UINT32: {
-			            int64_t ival = 0;
-			            if constexpr (std::is_floating_point<T>::value) {
-			                ival = static_cast<int64_t>(std::round(val));
-			            } else {
-			                ival = static_cast<int64_t>(val);
-			            }
-
-			            uint64_t raw = 0;
-			            switch (type) {
-			                case Type::INT8:   raw = static_cast<int8_t>(ival); break;
-			                case Type::INT16:  raw = static_cast<int16_t>(ival); break;
-			                case Type::INT32:  raw = static_cast<int32_t>(ival); break;
-			                case Type::UINT8:  raw = static_cast<uint8_t>(ival); break;
-			                case Type::UINT16: raw = static_cast<uint16_t>(ival); break;
-			                case Type::UINT32: raw = static_cast<uint32_t>(ival); break;
-			                default: break;
-			            }
-
-			            setRawNum(raw);
-			            break;
-			        }
-
-			        case Type::BOOL: {
-			            data[0] = val ? 1 : 0;
-			            break;
-			        }
-
-			        default:
-			            break;
-			    }
-		    }
+                break;
+            }
 		}
 
 		template<typename T>
 	    T get() {
-	        if constexpr (std::is_same<T, std::string>::value) {
-	            if (type != Type::STRING || data.empty()) return {};
-	            auto end = std::find(data.begin(), data.end(), 0);
-	            return std::string(data.begin(), end);
-	        } else if constexpr (std::is_floating_point<T>::value) {
-	            if (type == Type::FLOAT32) {
-	                uint32_t raw = getRawNum();
-	                float fval;
-	                memcpy(&fval, &raw, 4);
-	                return static_cast<T>(fval);
-	            } else { // integer type
-	                return static_cast<T>(getRawNum());
-	            }
-	        } else if constexpr (std::is_integral<T>::value) {
-	            if (type == Type::BOOL) {
-	                return static_cast<T>(data[0] != 0);
-	            } else { // integer type
-	                return static_cast<T>(getRawNum());
-	            }
-	        }
+            switch (type) {
+                case Type::INT8:    return castx<T,int8_t>(view.getInt8(0));
+                case Type::INT16:   return castx<T,int16_t>(view.getInt16(0,true));
+                case Type::INT32:   return castx<T,int32_t>(view.getInt32(0,true));
+                case Type::UINT8:   return castx<T,uint8_t>(view.getUint8(0));
+                case Type::UINT16:  return castx<T,uint16_t>(view.getUint16(0,true));
+                case Type::UINT32:  return castx<T,uint32_t>(view.getUint32(0,true));
+                case Type::FLOAT32: return castx<T,float>(view.getFloat32(0,true));
+                case Type::BOOL:    return castx<T,uint8_t>(view.getUint8(0));
+                case Type::STRING:  return castx<T,std::string>(view.getString());
+                default: 
+ 					throw std::logic_error("Type missing on get...");
+
+                break;
+            }
 	    }
 
 	    std::vector<uint8_t>& raw() { return data; }
@@ -108,6 +67,7 @@ namespace canopener {
 		uint16_t index;
 		uint8_t subindex;
 		std::vector<uint8_t> data;
+		DataView view;
 		void setRawNum(uint64_t raw);
 		uint32_t getRawNum();
 		int getTypeSize();

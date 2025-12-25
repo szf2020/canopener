@@ -8,3 +8,5 @@
 #include "canopener/SerialBus.h"
 #include "canopener/EspBus.h"
 #include "canopener/BridgeBus.h"
+#include "canopener/DataView.h"
+#include "canopener/castx.h"

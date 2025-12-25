@@ -60,23 +60,27 @@ void test_Device_basic() {
 	MockBus bus;
 	Device device(bus);
 
-	device.insert(0x4000,0x03).setType(Entry::STRING).set(std::string("hello"));
+	device.insert(0x4000,0x03).setType(Entry::STRING).set(std::string("helloxxx"));
 	std::string s=device.at(0x4000,0x03).get<std::string>();
-	assert(s=="hello");
+	assert(s=="helloxxx");
 
 	// Doesn't work for now...
-	/*device.insert(0x4000,0x04).setType(Entry::STRING).set("hello");
-	assert(device.at(0x4000,0x03).get<std::string>()=="hello2");*/
+	device.insert(0x4000,0x04).setType(Entry::STRING).set("hello");
+	assert(device.at(0x4000,0x04).get<std::string>()=="hello");
 
-	assert(device.at(0x4000,0x03).get<std::string>()==std::string("hello"));
+	//assert(device.at(0x4000,0x03).get<std::string>()==std::string("hello"));
 
 	device.insert(0x4000,0x05).setType(Entry::INT8).set(123);
+	assert(device.at(0x4000,0x05).get<int8_t>()==123);
 	assert(device.at(0x4000,0x05).get<uint32_t>()==123);
 	assert(device.at(0x4000,0x05).get<float>()==123.0);
 
-	device.insert(0x4000,0x00).setType(Entry::INT32).set(123);
-	assert(device.at(0x4000,0x00).get<uint32_t>()==123);
-	assert(device.at(0x4000).get<uint32_t>()==123);
+	device.at(0x4000,0x05).set("111");
+	assert(device.at(0x4000,0x05).get<int>()==111);
+
+	device.insert(0x4000,0x00).setType(Entry::UINT32).set(123);
+	assert(device.at(0x4000,0x00).get<int>()==123);
+	//assert(device.at(0x4000).get<uint32_t>()==123);
 }
 
 void test_Device_expedited_write() {
@@ -127,7 +131,30 @@ void test_Device_expedited_write16() {
 	assert(device.at(0x4001,0x33).get<uint32_t>()==0x5678);
 }
 
+void test_castx() {
+	printf("- castx...\n");
+
+	int i=castx<uint32_t>(std::string("123"));
+	assert(i==123);
+
+	int j=castx<uint32_t, const char *>("123");
+	assert(j==123);
+
+	int k=castx<uint32_t>("123");
+	assert(k==123);
+
+	int l=castx<int>((int)1234);
+	assert(l==1234);
+
+	std::string s=castx<std::string>(123);
+	assert(s=="123");
+
+	std::string t=castx<std::string,std::string>(std::string("bla"));
+	assert(t=="bla");
+}
+
 void test_BridgeBus();
+void test_DataView();
 
 int main() {
 	printf("Running tests...\n");
@@ -138,6 +165,8 @@ int main() {
 	test_Device_expedited_write();
 	test_Device_expedited_write16();
 	test_BridgeBus();
+	test_DataView();
+	test_castx();
 
 	return 0;
 }

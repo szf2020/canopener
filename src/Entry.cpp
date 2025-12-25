@@ -3,7 +3,8 @@
 
 using namespace canopener;
 
-Entry::Entry(uint16_t index_, uint8_t subindex_) {
+Entry::Entry(uint16_t index_, uint8_t subindex_)
+        :view(data) {
 	index=index_;
 	subindex=subindex_;
 	setType(INT32);
