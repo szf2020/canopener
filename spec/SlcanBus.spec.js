@@ -1,4 +1,5 @@
-import {openSlcanBus, slcanStringify} from "../lib/SlcanBus.js";
+import {openSlcanBus} from "../lib/SlcanBus.js";
+import {slcanStringify} from "../lib/slcan.js";
 
 describe("SlcanBus",()=>{
 	it("can spawn a command",async ()=>{

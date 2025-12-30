@@ -1,5 +1,4 @@
-import {openSlcanBus} from "../lib/SlcanBus.js";
-import RemoteDevice from "../lib/RemoteDevice.js";
+import {openSlcanBus, RemoteDevice} from "../lib/exports-node.js";
 
 describe("RemoteDevice",()=>{
 	it("expedited write",async ()=>{

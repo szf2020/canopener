@@ -21,6 +21,9 @@
     "serialport": "^13.0.0"
   },
   "exports": {
-    ".": "./lib/exports.js"
+    ".": {
+      "node": "./lib/exports-node.js",
+      "mcu": "./lib/exports-mcu.js"
+    }
   }
 }
