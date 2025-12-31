@@ -13,7 +13,7 @@ namespace canopener {
         bool read(cof_t *frame);
         void write(cof_t *frame);
         void loop();
-        //uint32_t millis() { return millis(); }
+        uint32_t millis() { return ::millis(); }
 
     private:
         Stream &stream;

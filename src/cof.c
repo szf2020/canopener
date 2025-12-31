@@ -180,9 +180,13 @@ void cof_set(cof_t *frame, int prop, uint32_t value) {
 uint32_t cof_get(const cof_t *frame, int prop) {
     switch(prop) {
         case COF_TYPE:
+            printf("bla: %d\n",frame->data[0]&0xE0);
+
             if ((frame->data[0]&0xE0)==0x40 && 
                     (frame->data[0]&0x03)!=0)
                 return COF_TYPE_SDO_UPLOAD_REPLY;
+
+            printf("herexx: %d\n",frame->data[0]&0xE0);
 
             switch(frame->data[0] & 0xE0) {
                 case 0x40: return COF_TYPE_SDO_UPLOAD_REQUEST;
@@ -191,6 +195,7 @@ uint32_t cof_get(const cof_t *frame, int prop) {
                 case 0x60: return COF_TYPE_SDO_DOWNLOAD_REPLY;
                 case 0x80: return COF_TYPE_SDO_ABORT;
                 default:
+                    printf("here too...\n");
                     if ((frame->id & 0x780) == 0x180) return COF_TYPE_PDO_TX;
                     if ((frame->id & 0x780) == 0x200) return COF_TYPE_PDO_RX;
                     if ((frame->id & 0x700) == 0x700) return COF_TYPE_HEARTBEAT;

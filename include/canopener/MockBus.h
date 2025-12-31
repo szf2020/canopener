@@ -32,7 +32,7 @@ namespace canopener {
 			return std::string(s);
 		}
 
-        //uint32_t millis() { return mockMillis; }
+        uint32_t millis() { return mockMillis; }
 
 		std::queue<cof_t> rxBuf;
 		std::queue<cof_t> txBuf;

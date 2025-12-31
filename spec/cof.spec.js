@@ -25,4 +25,10 @@ describe("cof",()=>{
 
 		COF._cof_dispose(cof);
 	});
+
+	it("can parse heartbeat frames",()=>{
+		let cof=COF.fromSlcan("t70617F");
+
+		console.log("cof type: "+COF._cof_get(cof,COF.COF_TYPE));
+	});
 });
