@@ -6,6 +6,8 @@ using namespace canopener;
 Device::Device(Bus& bus)
 		:bus(bus) {
 	nodeId=0;
+	/*heartbeatInterval=1000;
+	heartbeatDeadline=bus.millis()+heartbeatInterval;*/
 }
 
 Entry& Device::insert(uint16_t index, uint8_t subindex) {
@@ -47,6 +49,17 @@ void Device::loop() {
 		handleSdoExpeditedRead(*this,&frame);
 		handleSdoExpeditedWrite(*this,&frame);
 	}
+
+	/*if (bus.millis()>=heartbeatDeadline) {
+        cof_t heartbeat;
+        cof_set(&heartbeat,COF_TYPE,COF_TYPE_HEARTBEAT); 
+        cof_set(&heartbeat,COF_NODE_ID,getNodeId()); 
+        cof_set(&heartbeat,COF_NMT_STATE,0x7f);
+        getBus().write(&heartbeat);
+
+		//Serial.print("heartbeat...\n");
+		heartbeatDeadline=bus.millis()+heartbeatInterval;
+	}*/
 }
 
 /*void Device::send(Message m) {

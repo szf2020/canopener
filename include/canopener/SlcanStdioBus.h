@@ -10,6 +10,7 @@ namespace canopener {
         bool read(cof_t *frame);
         void write(cof_t *frame);
         void loop();
+        //uint32_t millis() { return 0; }
 
     private:
     	FILE *readf,*writef;

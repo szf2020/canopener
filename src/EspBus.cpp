@@ -13,6 +13,8 @@ EspBus::EspBus(int txPin_, int rxPin_) {
 }
 
 void EspBus::populatePeeked() {
+    //Serial.printf("rcv, havePeeked=%d\n",havePeeked);
+
 	if (havePeeked)
 		return;
 
@@ -21,6 +23,8 @@ void EspBus::populatePeeked() {
     result=twai_receive(&message,0); //pdMS_TO_TICKS(0));
     if (result==ESP_ERR_TIMEOUT)
     	return;
+
+    //Serial.printf("rcv!!!\n");
 
     if (result!=ESP_OK) {
         Serial.printf("Recv error: %d\n",result);

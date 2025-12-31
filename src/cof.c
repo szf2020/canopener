@@ -5,6 +5,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+void poke(uint8_t *p, uint32_t data) {
+    uint8_t data8=data;
+
+    *p=data8;
+}
+
+uint32_t peek(uint8_t *p){
+    uint8_t data8=*p;
+    uint32_t data=data8;
+
+    return data;
+}
+
 /* Initialize frame */
 void cof_init(cof_t *frame) {
     frame->id = 0;
@@ -93,8 +106,10 @@ void cof_set(cof_t *frame, int prop, uint32_t value) {
                 case COF_TYPE_SDO_UPLOAD_REPLY:
                 case COF_TYPE_SDO_DOWNLOAD_REPLY:
                 case COF_TYPE_SDO_ABORT:            frame->id = 0x580 | node; break;
-                case COF_TYPE_PDO_TX: case COF_TYPE_PDO_RX:
-                case COF_TYPE_EMCY: case COF_TYPE_HEARTBEAT:
+                case COF_TYPE_PDO_TX: 
+                case COF_TYPE_PDO_RX:
+                case COF_TYPE_EMCY: 
+                case COF_TYPE_HEARTBEAT:
                     frame->id = (frame->id & 0xF00) | node; break;
                 default: frame->id = node; break;
             }
@@ -151,6 +166,10 @@ void cof_set(cof_t *frame, int prop, uint32_t value) {
 
         case COF_COB_ID:
             frame->id=value;
+            break;
+
+        case COF_NMT_STATE:
+            frame->data[0]=value;
             break;
 
         default: break;
@@ -223,6 +242,10 @@ uint32_t cof_get(const cof_t *frame, int prop) {
 
         case COF_DLC:
             return frame->len;
+
+        case COF_NMT_STATE:
+            return frame->data[0];
+            break;
 
         default: return 0;
     }

@@ -8,5 +8,6 @@ namespace canopener {
         virtual bool read(cof_t *frame)=0;
         virtual void write(cof_t *frame)=0;
         virtual void loop() {};
+        //virtual uint32_t millis() {return 0; };//=0;
     };
 }

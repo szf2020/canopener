@@ -21,6 +21,7 @@ extern "C" {
 #define COF_COB_ID          12
 #define COF_DLC             13
 #define COF_DATA            14
+#define COF_NMT_STATE       15
 
 // Message types
 #define COF_TYPE_UNKNOWN               0x00
@@ -56,12 +57,17 @@ typedef struct {
 } cof_t;
 
 void cof_init(cof_t *frame);
+cof_t *cof_create();
+void cof_dispose(cof_t *cof);
 void cof_set(cof_t *frame, int prop, uint32_t value);
 uint32_t cof_get(const cof_t *frame, int prop);
 uint8_t *cof_getp(cof_t *f, int prop);
 char *cof_to_slcan(cof_t *f, char *s);
 cof_t *cof_from_slcan(cof_t *f, const char *buf);
 void cof_cpy(cof_t *dest, cof_t *src);
+
+void poke(uint8_t *p, uint32_t data);
+uint32_t peek(uint8_t *p);
 
 #ifdef __cplusplus
 }

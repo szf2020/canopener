@@ -22,5 +22,7 @@ namespace canopener {
 		Bus& bus;
 		std::vector<Entry*> entries;
 		int nodeId;
+		uint32_t heartbeatDeadline;
+		uint32_t heartbeatInterval;
 	};
 }

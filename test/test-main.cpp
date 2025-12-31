@@ -32,6 +32,11 @@ void test_cof() {
     assert(cof_get(&cof,COF_SDO_SUB)==0x10);
 	assert(cof_get(&cof,COF_SDO_ABORT_CODE)==0x06020000);
 
+	cof_t *cof3=cof_create();
+	cof_set(cof3,COF_TYPE,COF_TYPE_HEARTBEAT);
+
+	assert(cof_get(cof3,COF_TYPE)==COF_TYPE_HEARTBEAT);
+
 	//assert(cof_get(&cof2,COF_U32_0)==0x12345678);
 }
 

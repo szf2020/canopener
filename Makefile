@@ -1,6 +1,7 @@
 WATCHSOURCES=test/*.cpp src/*.c* include/*.h include/canopener/*.h emcc_flags.rsp
 
 all: bin/test bin/mockdevice dist/cof-defines.js dist/cof-wasm.wasm dist/cof-wasm.js
+js: dist/cof-wasm.wasm dist/cof-wasm.js dist/cof-defines.js
 
 bin/mockdevice: $(WATCHSOURCES)
 	g++ -obin/mockdevice -Iinclude src/*.c* test/mockdevice.cpp
