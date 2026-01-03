@@ -50,19 +50,19 @@ void Device::loop() {
 		handleSdoExpeditedWrite(*this,&frame);
 	}
 
-	/*if (bus.millis()>=heartbeatDeadline) {
+	if (bus.millis()>=heartbeatDeadline) {
         cof_t heartbeat;
-        cof_set(&heartbeat,COF_TYPE,COF_TYPE_HEARTBEAT); 
+        cof_set(&heartbeat,COF_FUNC,COF_FUNC_HEARTBEAT); 
         cof_set(&heartbeat,COF_NODE_ID,getNodeId()); 
-        cof_set(&heartbeat,COF_NMT_STATE,0x7f);
+        cof_set(&heartbeat,COF_HEARTBEAT_STATE,COF_HB_OPERATIONAL);
         getBus().write(&heartbeat);
 
-        char s[256];
-        cof_to_slcan(&heartbeat,s);
+        //char s[256];
+        //cof_to_slcan(&heartbeat,s);
+		//Serial.printf("heartbeat...\n");
 
-		//Serial.printf("heartbeat... %s\n",s);
 		heartbeatDeadline=bus.millis()+heartbeatInterval;
-	}*/
+	}
 }
 
 /*void Device::send(Message m) {

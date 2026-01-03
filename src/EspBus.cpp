@@ -76,7 +76,7 @@ void EspBus::write(cof_t *frame) {
 
     else {
 	    sendErrorCount++;
-        Serial.printf("Send error: %d\n",result);
+        //Serial.printf("Send error: %d\n",result);
     }
 }
 
