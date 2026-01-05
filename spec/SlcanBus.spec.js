@@ -3,7 +3,7 @@ import {slcanStringify} from "../lib/slcan.js";
 
 describe("SlcanBus",()=>{
 	it("can spawn a command",async ()=>{
-		let bus=await openSlcanBus({spawn: "bin/mockdevice"});
+		let bus=await openSlcanBus({spawn: "bin/mockdevice", spawnArgs: ["normal"]});
 		await new Promise(resolve=>{
 			bus.on("message",m=>{
 				let s=slcanStringify(m);
