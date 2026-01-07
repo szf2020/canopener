@@ -31,7 +31,7 @@ void EspBus::populatePeeked() {
         return;
     }
 
-    lastBusTime=millis();
+    //lastBusTime=millis();
     peeked.id=message.identifier;
     peeked.len=message.data_length_code;
     for (int i=0; i<8; i++)
@@ -86,12 +86,33 @@ void EspBus::loop() {
 		initialized=true;
 	}
 
+    uint32_t alerts;
+    esp_err_t res = twai_read_alerts(&alerts, 0); // non-blocking
+
+    if (res == ESP_OK) {
+        if (alerts & TWAI_ALERT_TX_FAILED) {
+            sendErrorCount++;
+            // Optional: Serial.println("TWAI TX failed");
+        }
+
+        if (alerts & TWAI_ALERT_ERR_PASS) {
+            // Controller entered error-passive
+            // TX is already in trouble here
+            sendErrorCount++;
+        }
+
+        if (alerts & TWAI_ALERT_BUS_OFF) {
+            // This is terminal without reset
+            resetBus();
+        }
+    }
+
     twai_status_info_t status;
     twai_get_status_info(&status);
 
     //bool errorPressure = status.tx_error_counter > 5;
     bool stalled = millis() - lastBusTime > 500;
-    if (sendErrorCount>1 && stalled) // WHAAAT??? THIS SHOuLD NOT BE 0, it should be 5 or so... test and fix...
+    if (sendErrorCount>=3 && stalled)
         resetBus();
 }
 
@@ -101,12 +122,22 @@ void EspBus::resetBus() {
     sendErrorCount=0;
 
     twai_stop();
-    delay(20);
-    //vTaskDelay(pdMS_TO_TICKS(20));
+    //delay(20);
+    vTaskDelay(pdMS_TO_TICKS(50));
 
     twai_driver_uninstall();
-    delay(20);
-    //vTaskDelay(pdMS_TO_TICKS(20));
+    //delay(20);
+    vTaskDelay(pdMS_TO_TICKS(50));
+
+    // GPIO unstick
+    gpio_reset_pin((gpio_num_t)txPin);
+    gpio_set_direction((gpio_num_t)txPin, GPIO_MODE_OUTPUT);
+    gpio_set_level((gpio_num_t)txPin, 0);
+
+    gpio_reset_pin((gpio_num_t)rxPin);
+    gpio_set_direction((gpio_num_t)rxPin, GPIO_MODE_INPUT);
+
+    vTaskDelay(pdMS_TO_TICKS(20));
 
     twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)txPin, (gpio_num_t)rxPin, TWAI_MODE_NORMAL);
     twai_timing_config_t t_config = TWAI_TIMING_CONFIG_125KBITS();  // 500kbps
@@ -125,6 +156,14 @@ void EspBus::resetBus() {
         Serial.println("Failed to start TWAI driver");
         return;
     }
+
+    uint32_t alerts_to_enable =
+        TWAI_ALERT_TX_FAILED |
+        TWAI_ALERT_BUS_OFF   |
+        TWAI_ALERT_ERR_PASS  |
+        TWAI_ALERT_BUS_RECOVERED;
+
+    ESP_ERROR_CHECK(twai_reconfigure_alerts(alerts_to_enable, NULL));
 }
 
 #endif
